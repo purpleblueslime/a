@@ -1,0 +1,5 @@
+DEFINE PROCEDURE ''a'' [N]:
+BLOCK 0: BEGIN
+  PRINT['a']
+BLOCK 0: END.
+a[1];
