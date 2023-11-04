@@ -1,0 +1,43 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build Docker images
+      - id: buildx
+        uses: docker/setup-buildx-action@v3
+      - uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ github.ref }}
+      - uses: docker/build-push-action@v5
+        with:
+          push: false
+          file: Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: purpleblueslime/a:latest
+          load: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      # Run tests in Docker Container
+      - run: docker run --rm -v "$(pwd)":/workspaces/a purpleblueslime/a ./test
+
+      # Hack: shrink cache size
+      # https://github.com/docker/build-push-action/issues/252#issuecomment-871700519
+      - if: always()
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

@@ -1,0 +1,132 @@
+#!/usr/bin/env bats
+
+# Usage:
+# Build environment for test (should be run every time you edit the Dockerfile)
+# $ docker build -t purpleblueslime/a .
+#
+# Run bash interpreter inside of built container
+# $ docker run --rm -v "$(pwd)":/workspaces/a -it purpleblueslime/a bash
+#
+# Run tests
+# $ docker run --rm -v "$(pwd)":/workspaces/a purpleblueslime/a ./test
+
+@test "bc" {
+  run bc < bc/a.bc
+  [ "$output" = 'a' ]
+}
+
+@test "brainfuck" {
+  run beef brainfuck/main.bf
+  [ "$output" = 'a' ]
+}
+
+@test "c" {
+  gcc c/main.c
+  run ./a.out
+  rm ./a.out
+  [ "$output" = 'a' ]
+}
+
+@test "chef" {
+  run rchef chef/main.chef
+  [ "$output" = 'a' ]
+}
+
+@test "c++" {
+  g++ cpp/main.cpp
+  run ./a.out
+  rm ./a.out
+  [ "$output" = 'a' ]
+}
+
+@test "dc" {
+  run dc -f dc/a.dc
+  [ "$output" = 'a' ]
+}
+
+@test "elixir" {
+  run elixir elixir/a.exs
+  [ "$output" = 'a' ]
+}
+
+@test "go" {
+  go build go/main.go
+  run ./main
+  [ "$output" = 'a' ]
+}
+
+@test "haskell" {
+  run runghc haskell/main.hs
+  [ "$output" = 'a' ]
+}
+
+@test "js" {
+  run node js/main.js
+  [ "$output" = 'a' ]
+}
+
+@test "malbolge" {
+  run malbolge malbolge/a.mal
+  [ "$output" = 'a' ]
+}
+
+@test "nadesiko" {
+  run snako nadesiko/a.nako
+  [ "$output" = 'a' ]
+}
+
+@test "nim" {
+  nim compile nim/a.nim
+  run ./nim/a
+  rm ./nim/a
+  [ "$output" = 'a' ]
+}
+
+@test "purescript" {
+  cd purescript
+  spago init --force
+  spago install
+  run spago script main.purs
+  rm -rf .gitignore packages.dhall spago.dhall .purs-repl .spago src test
+  cd ..
+  [ "${lines[-1]}" = 'a' ]
+}
+
+@test "python" {
+  run python3 python/main.py
+  [ "$output" = 'a' ]
+}
+
+@test "r" {
+  run Rscript r/a.r
+  [ "$output" = '[1] "a"' ]
+}
+
+@test "ruby" {
+  run ruby ruby/main.rb
+  [ "$output" = 'a' ]
+}
+
+@test "rust" {
+  rustc rust/main.rs
+  run ./main
+  rm ./main
+  [ "$output" = 'a' ]
+}
+
+@test "shell" {
+  run bash ./shell/main.sh
+  [ "$output" = 'a' ]
+}
+
+@test "whitespace" {
+  run whitespace whitespace/a.ws
+  [ "$output" = 'a' ]
+}
+
+@test "zig" {
+  zig build-exe zig/a.zig
+  run ./a
+  rm ./a ./a.o
+  [ "$output" = 'a' ]
+}
